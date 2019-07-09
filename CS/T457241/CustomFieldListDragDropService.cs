@@ -1,18 +1,16 @@
 ﻿using DevExpress.Data.Browsing;
 using DevExpress.XtraPrinting;
 using DevExpress.XtraReports.Design;
+using DevExpress.XtraReports.Expressions.Native;
 using DevExpress.XtraReports.UI;
 using DevExpress.XtraReports.UserDesigner;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace T457241 {
-
     public class CustomFieldListDragDropService : IFieldListDragDropService {
         private IDesignerHost host;
         private XRDesignPanel panel;
@@ -21,7 +19,6 @@ namespace T457241 {
             this.host = host;
             this.panel = panel;
         }
-
         public IDragHandler GetDragHandler() {
             return new CustomFieldDragHandler(host, panel);
         }
@@ -33,15 +30,14 @@ namespace T457241 {
 
         public CustomFieldDragHandler(IDesignerHost host, XRDesignPanel panel)
             : base(host) {
-            this.host = host;
             this.panel = panel;
         }
 
         public override void HandleDragDrop(object sender, DragEventArgs e) {
             DataInfo[] droppedData = e.Data.GetData(typeof(DataInfo[])) as DataInfo[];
-            XRControl parentControl = bandViewSvc.GetControlByScreenPoint(new Point(e.X, e.Y));
+            XRControl parentControl = BandViewSvc.GetControlByScreenPoint(new Point(e.X, e.Y));
 
-            ISelectionService selectSvc = host.GetService(typeof(ISelectionService)) as ISelectionService;
+            ISelectionService selectSvc = Host.GetService(typeof(ISelectionService)) as ISelectionService;
 
             if(((parentControl is XRPanel) || (parentControl is Band)) && ((droppedData.Length == 1))) {
                 AddSingleField(e, droppedData, parentControl, selectSvc);
@@ -52,10 +48,10 @@ namespace T457241 {
         }
 
         private void AddMultipleFields(DragEventArgs e, DataInfo[] droppedData, XRControl parentControl, ISelectionService selectSvc) {
-            this.AdornerService.ResetSnapping();
+            this.AdornerService.ResetAll();
             this.RulerService.HideShadows();
             XRTableCell headerCell;
-            XRControl parent = bandViewSvc.GetControlByScreenPoint(new Point(e.X, e.Y));
+            XRControl parent = BandViewSvc.GetControlByScreenPoint(new Point(e.X, e.Y));
             if(parent == null)
                 return;
             SizeF size = new SizeF(100F * droppedData.Length, 25F);
@@ -71,22 +67,23 @@ namespace T457241 {
             this.droppedControl = detailTable;
             detailTable.SizeF = size;
 
-            host.Container.Add(detailTable);
-            host.Container.Add(detailRow);
+            Host.Container.Add(detailTable);
+            Host.Container.Add(detailRow);
 
             for(int i = 0; i < droppedData.Length; i++) {
                 XRTableCell cell = new XRTableCell();
-                cell.DataBindings.Add("Text", droppedData[i].Source, droppedData[i].Member);
+                string expression = ExpressionBindingHelper.NormalizeDataMember(droppedData[i].Member, parent.Report.DataMember);
+                cell.ExpressionBindings.Add(
+                    new ExpressionBinding("Text",
+                    expression));
                 detailRow.Cells.Add(cell);
-                host.Container.Add(cell);
+                Host.Container.Add(cell);
             }
-            detailTable.EndInit();
-
-            selectSvc.SetSelectedComponents(new XRControl[] { detailTable });
+            detailTable.EndInit();           
 
             PointF dropPoint = GetDragDropLocation(e, detailTable, parentControl);
             this.DropXRControl(parentControl, new PointF(0, dropPoint.Y));
-
+            selectSvc.SetSelectedComponents(new XRControl[] { detailTable });
             if((parentControl is DetailBand)) {
                 PageHeaderBand band = null;
                 if((parentControl as DetailBand).Report.Bands.OfType<PageHeaderBand>().FirstOrDefault() != null) {
@@ -94,7 +91,7 @@ namespace T457241 {
                 } else {
                     band = new PageHeaderBand();
                     (parentControl as DetailBand).Report.Bands.Add(band);
-                    host.Container.Add(band);
+                    Host.Container.Add(band);
                 }
 
                 XRTable headerTable = new XRTable() { Name = "HeaderTable" };
@@ -105,11 +102,11 @@ namespace T457241 {
 
                 headerTable.SizeF = size;
 
-                host.Container.Add(headerTable);
-                host.Container.Add(headerRow);
+                Host.Container.Add(headerTable);
+                Host.Container.Add(headerRow);
 
                 for(int i = 0; i < droppedData.Length; i++)
-                    headerCell = CreateTableCell(host, headerRow, droppedData[i].DisplayName);
+                    headerCell = CreateTableCell(Host, headerRow, droppedData[i].DisplayName);
                 headerTable.Borders = BorderSide.All;
                 headerTable.EndInit();
 
@@ -130,14 +127,12 @@ namespace T457241 {
             return headerCell;
         }
 
-
         private PointF GetDragDropLocation(DragEventArgs e, XRControl control, XRControl parent) {
             PointF bandPoint = EvalBandPoint(e, parent.Band);
-            bandPoint = bandViewSvc.SnapBandPoint(bandPoint, parent.Band, control, new XRControl[] { control });
-            PointF screenPoint = bandViewSvc.ControlViewToScreen(bandPoint, parent.Band);
-            return bandViewSvc.ScreenToControl(new RectangleF(screenPoint, SizeF.Empty), parent).Location;
+            bandPoint = BandViewSvc.SnapBandPoint(bandPoint, parent.Band, control, new XRControl[] { control });
+            PointF screenPoint = BandViewSvc.ControlViewToScreen(bandPoint, parent.Band);
+            return BandViewSvc.ScreenToControl(new RectangleF(screenPoint, SizeF.Empty), parent).Location;
         }
-
 
         private float CalculateWidth(XRControl control) {
             XtraReport report = control.RootReport;
@@ -145,7 +140,7 @@ namespace T457241 {
         }
 
         private void AddSingleField(DragEventArgs e, DataInfo[] droppedData, XRControl parentControl, ISelectionService selectSvc) {
-            this.AdornerService.ResetSnapping();
+            this.AdornerService.ResetAll();
             this.RulerService.HideShadows();
 
             SizeF size = new SizeF(100F, 25F);
@@ -154,14 +149,14 @@ namespace T457241 {
             this.droppedControl = detailLabel;
             detailLabel.SizeF = size;
 
-            host.Container.Add(detailLabel);
+            Host.Container.Add(detailLabel);
             PointF dropPoint = GetDragDropLocation(e, detailLabel, parentControl);
-            detailLabel.DataBindings.Add("Text", droppedData[0].Source, droppedData[0].Member);
 
-            selectSvc.SetSelectedComponents(new XRControl[] { detailLabel });
+            detailLabel.ExpressionBindings.Add(new ExpressionBinding("Text",
+                ExpressionBindingHelper.NormalizeDataMember(droppedData[0].Member, parentControl.Report.DataMember)));           
 
             this.DropXRControl(parentControl, dropPoint);
-
+            selectSvc.SetSelectedComponents(new XRControl[] { detailLabel });
             if((parentControl is DetailBand)) {
                 PageHeaderBand band = null;
                 if(panel.Report.Bands.OfType<PageHeaderBand>().FirstOrDefault() != null) {
@@ -169,10 +164,10 @@ namespace T457241 {
                 } else {
                     band = new PageHeaderBand();
                     panel.Report.Bands.Add(band);
-                    host.Container.Add(band);
+                    Host.Container.Add(band);
                 }
                 XRLabel headerLabel = CreateLabel(droppedControl.LocationF, size, droppedData[0].DisplayName);
-                host.Container.Add(headerLabel);
+                Host.Container.Add(headerLabel);
                 band.Controls.Add(headerLabel);
             }
         }

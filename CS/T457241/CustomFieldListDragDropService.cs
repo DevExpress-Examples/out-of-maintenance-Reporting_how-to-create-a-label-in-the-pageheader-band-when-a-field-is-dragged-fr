@@ -1,6 +1,7 @@
 ﻿using DevExpress.Data.Browsing;
 using DevExpress.XtraPrinting;
 using DevExpress.XtraReports.Design;
+using DevExpress.XtraReports.Expressions.Native;
 using DevExpress.XtraReports.UI;
 using DevExpress.XtraReports.UserDesigner;
 using System;
@@ -10,7 +11,6 @@ using System.Linq;
 using System.Windows.Forms;
 
 namespace T457241 {
-
     public class CustomFieldListDragDropService : IFieldListDragDropService {
         private IDesignerHost host;
         private XRDesignPanel panel;
@@ -71,8 +71,10 @@ namespace T457241 {
             Host.Container.Add(detailRow);
 
             for(int i = 0; i < droppedData.Length; i++) {
-                XRTableCell cell = new XRTableCell();
-                cell.ExpressionBindings.Add(new ExpressionBinding("Text", droppedData[i].Member));
+                XRTableCell cell = new XRTableCell(); 
+                cell.ExpressionBindings.Add(
+                    new ExpressionBinding("Text", 
+                    ExpressionBindingHelper.NormalizeDataMember(droppedData[i].Member)));
                 detailRow.Cells.Add(cell);
                 Host.Container.Add(cell);
             }

@@ -108,18 +108,8 @@
     <Compile Include="Form1.Designer.vb">
       <DependentUpon>Form1.vb</DependentUpon>
     </Compile>
-    <Compile Include="PrintRibbonControllerResources.Designer.vb">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>PrintRibbonControllerResources.resx</DependentUpon>
-    </Compile>
     <Compile Include="Program.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
-    <Compile Include="XRDesignRibbonControllerResources.Designer.vb">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>XRDesignRibbonControllerResources.resx</DependentUpon>
-    </Compile>
     <Compile Include="XtraReport1.vb">
       <SubType>Component</SubType>
     </Compile>
@@ -128,11 +118,6 @@
     </Compile>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="PrintRibbonControllerResources.resx">
-      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
-      <LastGenOutput>PrintRibbonControllerResources.Designer.vb</LastGenOutput>
-      <CustomToolNamespace>T457241.Properties</CustomToolNamespace>
     </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
@@ -145,11 +130,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="XRDesignRibbonControllerResources.resx">
-      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
-      <LastGenOutput>XRDesignRibbonControllerResources.Designer.vb</LastGenOutput>
-      <CustomToolNamespace>T457241.Properties</CustomToolNamespace>
-    </EmbeddedResource>
     <EmbeddedResource Include="XtraReport1.resx">
       <DependentUpon>XtraReport1.vb</DependentUpon>
     </EmbeddedResource>

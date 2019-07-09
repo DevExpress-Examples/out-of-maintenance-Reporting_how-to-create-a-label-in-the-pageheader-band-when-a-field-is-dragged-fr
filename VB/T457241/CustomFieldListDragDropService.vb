@@ -83,8 +83,8 @@ Namespace T457241
 
 			For i As Integer = 0 To droppedData.Length - 1
 				Dim cell As New XRTableCell()
-				cell.DataBindings.Add("Text", droppedData(i).Source, droppedData(i).Member)
-				detailRow.Cells.Add(cell)
+                cell.ExpressionBindings.Add(New ExpressionBinding("Text", droppedData(i).Member))
+                detailRow.Cells.Add(cell)
 				host.Container.Add(cell)
 			Next i
 			detailTable.EndInit()
@@ -164,9 +164,9 @@ Namespace T457241
 
 			host.Container.Add(detailLabel)
 			Dim dropPoint As PointF = GetDragDropLocation(e, detailLabel, parentControl)
-			detailLabel.DataBindings.Add("Text", droppedData(0).Source, droppedData(0).Member)
+            detailLabel.ExpressionBindings.Add(New ExpressionBinding("Text", droppedData(0).Member))
 
-			selectSvc.SetSelectedComponents(New XRControl() { detailLabel })
+            selectSvc.SetSelectedComponents(New XRControl() { detailLabel })
 
 			Me.DropXRControl(parentControl, dropPoint)
 

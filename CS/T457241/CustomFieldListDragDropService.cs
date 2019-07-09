@@ -11,7 +11,6 @@ using System.Linq;
 using System.Windows.Forms;
 
 namespace T457241 {
-
     public class CustomFieldListDragDropService : IFieldListDragDropService {
         private IDesignerHost host;
         private XRDesignPanel panel;
@@ -24,7 +23,6 @@ namespace T457241 {
             return new CustomFieldDragHandler(host, panel);
         }
     }
-
     public class CustomFieldDragHandler : FieldDragHandler {
         XRDesignPanel panel;
         XRControl droppedControl;
@@ -74,7 +72,7 @@ namespace T457241 {
 
             for(int i = 0; i < droppedData.Length; i++) {
                 XRTableCell cell = new XRTableCell();
-                string relatedDataMember = ExpressionBindingHelper.NormalizeDataMember(droppedData[i].Member);
+                string relatedDataMember = ExpressionBindingHelper.NormalizeDataMember(droppedData[i].Member, parentControl.Report.DataMember);
                 cell.ExpressionBindings.Add(new ExpressionBinding("Text",
                     relatedDataMember));
                 detailRow.Cells.Add(cell);
@@ -155,7 +153,7 @@ namespace T457241 {
 
             host.Container.Add(detailLabel);
             PointF dropPoint = GetDragDropLocation(e, detailLabel, parentControl);
-            detailLabel.ExpressionBindings.Add(new ExpressionBinding("Text", droppedData[0].Member));
+            detailLabel.ExpressionBindings.Add(new ExpressionBinding("Text", ExpressionBindingHelper.NormalizeDataMember(droppedData[0].Member, parentControl.Report.DataMember)));
 
             selectSvc.SetSelectedComponents(new XRControl[] { detailLabel });
 

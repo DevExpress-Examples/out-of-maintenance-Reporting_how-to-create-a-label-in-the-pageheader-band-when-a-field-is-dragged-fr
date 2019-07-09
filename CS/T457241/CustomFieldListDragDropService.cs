@@ -48,7 +48,7 @@ namespace T457241 {
         }
 
         private void AddMultipleFields(DragEventArgs e, DataInfo[] droppedData, XRControl parentControl, ISelectionService selectSvc) {
-            this.AdornerService.ResetSnapping();
+            this.AdornerService.ResetAll();
             this.RulerService.HideShadows();
             XRTableCell headerCell;
             XRControl parent = BandViewSvc.GetControlByScreenPoint(new Point(e.X, e.Y));
@@ -71,20 +71,19 @@ namespace T457241 {
             Host.Container.Add(detailRow);
 
             for(int i = 0; i < droppedData.Length; i++) {
-                XRTableCell cell = new XRTableCell(); 
+                XRTableCell cell = new XRTableCell();
+                string expression = ExpressionBindingHelper.NormalizeDataMember(droppedData[i].Member, parent.Report.DataMember);
                 cell.ExpressionBindings.Add(
-                    new ExpressionBinding("Text", 
-                    ExpressionBindingHelper.NormalizeDataMember(droppedData[i].Member)));
+                    new ExpressionBinding("Text",
+                    expression));
                 detailRow.Cells.Add(cell);
                 Host.Container.Add(cell);
             }
-            detailTable.EndInit();
-
-            selectSvc.SetSelectedComponents(new XRControl[] { detailTable });
+            detailTable.EndInit();           
 
             PointF dropPoint = GetDragDropLocation(e, detailTable, parentControl);
             this.DropXRControl(parentControl, new PointF(0, dropPoint.Y));
-
+            selectSvc.SetSelectedComponents(new XRControl[] { detailTable });
             if((parentControl is DetailBand)) {
                 PageHeaderBand band = null;
                 if((parentControl as DetailBand).Report.Bands.OfType<PageHeaderBand>().FirstOrDefault() != null) {
@@ -141,7 +140,7 @@ namespace T457241 {
         }
 
         private void AddSingleField(DragEventArgs e, DataInfo[] droppedData, XRControl parentControl, ISelectionService selectSvc) {
-            this.AdornerService.ResetSnapping();
+            this.AdornerService.ResetAll();
             this.RulerService.HideShadows();
 
             SizeF size = new SizeF(100F, 25F);
@@ -153,12 +152,11 @@ namespace T457241 {
             Host.Container.Add(detailLabel);
             PointF dropPoint = GetDragDropLocation(e, detailLabel, parentControl);
 
-            detailLabel.ExpressionBindings.Add(new ExpressionBinding("Text", droppedData[0].Member));
-
-            selectSvc.SetSelectedComponents(new XRControl[] { detailLabel });
+            detailLabel.ExpressionBindings.Add(new ExpressionBinding("Text",
+                ExpressionBindingHelper.NormalizeDataMember(droppedData[0].Member, parentControl.Report.DataMember)));           
 
             this.DropXRControl(parentControl, dropPoint);
-
+            selectSvc.SetSelectedComponents(new XRControl[] { detailLabel });
             if((parentControl is DetailBand)) {
                 PageHeaderBand band = null;
                 if(panel.Report.Bands.OfType<PageHeaderBand>().FirstOrDefault() != null) {

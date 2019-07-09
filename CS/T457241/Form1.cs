@@ -2,15 +2,21 @@
 using DevExpress.XtraReports.UI;
 using DevExpress.XtraReports.UserDesigner;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.Design;
+using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
+using System.Windows.Forms;
 
 namespace T457241 {
     public partial class Form1 : DevExpress.XtraEditors.XtraForm {
         ReportDesignTool designer;
         IDesignerHost host;
-        char[] charsToTrim = { '[', ']' };
         public Form1() {
             InitializeComponent();
         }
@@ -33,14 +39,11 @@ namespace T457241 {
         private void DesignPanel_ComponentAdded(object sender, System.ComponentModel.Design.ComponentEventArgs e) {
             PageHeaderBand headerBand;
             host = (IDesignerHost)designer.DesignRibbonForm.DesignMdiController.ActiveDesignPanel.Report.Site.GetService(typeof(IDesignerHost));
-            if(!(e.Component is XRLabel) && !(e.Component is XRTable))
-                return;
+            if(!(e.Component is XRLabel) && !(e.Component is XRTable)) return;
             if(e.Component is XRLabel) {
                 XRLabel label = e.Component as XRLabel;
-                if(label.ExpressionBindings.Count == 0)
-                    return;
-                if(label.Parent is XRTableRow)
-                    return;
+                if(label.DataBindings.Count == 0) return;
+                if(label.Parent is XRTableRow) return;
                 headerBand = CreatePageHeaderBand(designer.Report);
                 XRLabel newLabel = CopyLabel(label, headerBand);
                 headerBand.Controls.Add(newLabel);
@@ -95,12 +98,15 @@ namespace T457241 {
             newLabel.BackColor = Color.Green;
             newLabel.ForeColor = Color.Yellow;
             newLabel.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleCenter;
-            newLabel.Font = new Font("Calibry", label.Font.Size, FontStyle.Bold);
+            newLabel.Font = new Font("Calibry", 11, FontStyle.Bold);
             newLabel.Borders = DevExpress.XtraPrinting.BorderSide.All;
-            newLabel.LocationF = label.LocationF;
-            newLabel.WidthF = label.WidthF;
-            if(label.ExpressionBindings.Count > 0) {
-                text = label.ExpressionBindings[0].Expression.Trim(charsToTrim);
+            newLabel.LocationF = new PointF(0, band.HeightF);
+            newLabel.WidthF = report.PageWidth - report.Margins.Left - report.Margins.Right;
+            if(label.DataBindings.Count > 0) {
+                text = label.DataBindings[0].DataMember;
+                int index = text.LastIndexOf(".");
+                if(index > 0)
+                    text = text.Substring(index + 1);
             }
             newLabel.Text = text;
             return newLabel;
@@ -113,8 +119,11 @@ namespace T457241 {
             cell.BackColor = Color.Green;
             cell.ForeColor = Color.Yellow;
             cell.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleCenter;
-            cell.Font = new Font("Calibry", source.Font.Size, FontStyle.Bold);
-            string text = source.ExpressionBindings[0].Expression.Trim(charsToTrim);
+            cell.Font = new Font("Calibry", 11, FontStyle.Bold);
+            string text = source.DataBindings[0].DataMember;
+            int index = text.LastIndexOf(".");
+            if(index > 0)
+                text = text.Substring(index + 1);
             cell.Text = text;
             row.Cells.Add(cell);
             DesignTool.AddToContainer(host, cell);

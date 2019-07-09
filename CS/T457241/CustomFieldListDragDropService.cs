@@ -1,6 +1,7 @@
 ﻿using DevExpress.Data.Browsing;
 using DevExpress.XtraPrinting;
 using DevExpress.XtraReports.Design;
+using DevExpress.XtraReports.Expressions.Native;
 using DevExpress.XtraReports.UI;
 using DevExpress.XtraReports.UserDesigner;
 using System;
@@ -73,7 +74,9 @@ namespace T457241 {
 
             for(int i = 0; i < droppedData.Length; i++) {
                 XRTableCell cell = new XRTableCell();
-                cell.ExpressionBindings.Add(new ExpressionBinding("Text", droppedData[i].Member));
+                string relatedDataMember = ExpressionBindingHelper.NormalizeDataMember(droppedData[i].Member);
+                cell.ExpressionBindings.Add(new ExpressionBinding("Text",
+                    relatedDataMember));
                 detailRow.Cells.Add(cell);
                 host.Container.Add(cell);
             }

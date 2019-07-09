@@ -36,18 +36,17 @@ Namespace T457241
 		Private droppedControl As XRControl
 
 		Public Sub New(ByVal host As IDesignerHost, ByVal panel As XRDesignPanel)
-			MyBase.New(host)
-			Me.host = host
-			Me.panel = panel
+            MyBase.New(host)
+            Me.panel = panel
 		End Sub
 
 		Public Overrides Sub HandleDragDrop(ByVal sender As Object, ByVal e As DragEventArgs)
 			Dim droppedData() As DataInfo = TryCast(e.Data.GetData(GetType(DataInfo())), DataInfo())
-            Dim parentControl As XRControl = bandViewSvc.GetControlByScreenPoint(New System.Drawing.Point(e.X, e.Y))
+            Dim parentControl As XRControl = BandViewSvc.GetControlByScreenPoint(New System.Drawing.Point(e.X, e.Y))
 
-			Dim selectSvc As ISelectionService = TryCast(host.GetService(GetType(ISelectionService)), ISelectionService)
+            Dim selectSvc As ISelectionService = TryCast(Host.GetService(GetType(ISelectionService)), ISelectionService)
 
-			If ((TypeOf parentControl Is XRPanel) OrElse (TypeOf parentControl Is Band)) AndAlso ((droppedData.Length = 1)) Then
+            If ((TypeOf parentControl Is XRPanel) OrElse (TypeOf parentControl Is Band)) AndAlso ((droppedData.Length = 1)) Then
 				AddSingleField(e, droppedData, parentControl, selectSvc)
 			ElseIf ((TypeOf parentControl Is XRPanel) OrElse (TypeOf parentControl Is Band)) AndAlso ((droppedData.Length > 1)) Then
 				AddMultipleFields(e, droppedData, parentControl, selectSvc)
@@ -60,8 +59,8 @@ Namespace T457241
 			Me.AdornerService.ResetSnapping()
 			Me.RulerService.HideShadows()
 			Dim headerCell As XRTableCell
-            Dim parent As XRControl = bandViewSvc.GetControlByScreenPoint(New System.Drawing.Point(e.X, e.Y))
-			If parent Is Nothing Then
+            Dim parent As XRControl = BandViewSvc.GetControlByScreenPoint(New System.Drawing.Point(e.X, e.Y))
+            If parent Is Nothing Then
 				Return
 			End If
 			Dim size As New SizeF(100F * droppedData.Length, 25F)
@@ -78,15 +77,15 @@ Namespace T457241
 			Me.droppedControl = detailTable
 			detailTable.SizeF = size
 
-			host.Container.Add(detailTable)
-			host.Container.Add(detailRow)
+            Host.Container.Add(detailTable)
+            Host.Container.Add(detailRow)
 
-			For i As Integer = 0 To droppedData.Length - 1
+            For i As Integer = 0 To droppedData.Length - 1
 				Dim cell As New XRTableCell()
-				cell.DataBindings.Add("Text", droppedData(i).Source, droppedData(i).Member)
-				detailRow.Cells.Add(cell)
-				host.Container.Add(cell)
-			Next i
+                cell.ExpressionBindings.Add(New ExpressionBinding("Text", droppedData(i).Member))
+                detailRow.Cells.Add(cell)
+                Host.Container.Add(cell)
+            Next i
 			detailTable.EndInit()
 
 			selectSvc.SetSelectedComponents(New XRControl() { detailTable })
@@ -101,8 +100,8 @@ Namespace T457241
 				Else
 					band = New PageHeaderBand()
 					TryCast(parentControl, DetailBand).Report.Bands.Add(band)
-					host.Container.Add(band)
-				End If
+                    Host.Container.Add(band)
+                End If
 
 				Dim headerTable As New XRTable() With {.Name = "HeaderTable"}
 				headerTable.BeginInit()
@@ -112,12 +111,12 @@ Namespace T457241
 
 				headerTable.SizeF = size
 
-				host.Container.Add(headerTable)
-				host.Container.Add(headerRow)
+                Host.Container.Add(headerTable)
+                Host.Container.Add(headerRow)
 
-				For i As Integer = 0 To droppedData.Length - 1
-					headerCell = CreateTableCell(host, headerRow, droppedData(i).DisplayName)
-				Next i
+                For i As Integer = 0 To droppedData.Length - 1
+                    headerCell = CreateTableCell(headerRow, droppedData(i).DisplayName)
+                Next i
 				headerTable.Borders = BorderSide.All
 				headerTable.EndInit()
 
@@ -126,25 +125,25 @@ Namespace T457241
 			End If
 		End Sub
 
-		Private Function CreateTableCell(ByVal host As IDesignerHost, ByVal row As XRTableRow, ByVal cellText As String) As XRTableCell
-			Dim headerCell As New XRTableCell()
-			headerCell.Text = cellText
-			headerCell.BackColor = Color.Green
-			headerCell.ForeColor = Color.Yellow
-			headerCell.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleCenter
-			headerCell.Font = New Font("Calibry", 11, FontStyle.Bold)
-			row.Cells.Add(headerCell)
-			host.Container.Add(headerCell)
-			Return headerCell
-		End Function
+        Private Function CreateTableCell(ByVal row As XRTableRow, ByVal cellText As String) As XRTableCell
+            Dim headerCell As New XRTableCell()
+            headerCell.Text = cellText
+            headerCell.BackColor = Color.Green
+            headerCell.ForeColor = Color.Yellow
+            headerCell.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleCenter
+            headerCell.Font = New Font("Calibry", 11, FontStyle.Bold)
+            row.Cells.Add(headerCell)
+            Host.Container.Add(headerCell)
+            Return headerCell
+        End Function
 
 
-		Private Function GetDragDropLocation(ByVal e As DragEventArgs, ByVal control As XRControl, ByVal parent As XRControl) As PointF
+        Private Function GetDragDropLocation(ByVal e As DragEventArgs, ByVal control As XRControl, ByVal parent As XRControl) As PointF
 			Dim bandPoint As PointF = EvalBandPoint(e, parent.Band)
-			bandPoint = bandViewSvc.SnapBandPoint(bandPoint, parent.Band, control, New XRControl() { control })
-			Dim screenPoint As PointF = bandViewSvc.ControlViewToScreen(bandPoint, parent.Band)
-			Return bandViewSvc.ScreenToControl(New RectangleF(screenPoint, SizeF.Empty), parent).Location
-		End Function
+            bandPoint = BandViewSvc.SnapBandPoint(bandPoint, parent.Band, control, New XRControl() {control})
+            Dim screenPoint As PointF = BandViewSvc.ControlViewToScreen(bandPoint, parent.Band)
+            Return BandViewSvc.ScreenToControl(New RectangleF(screenPoint, SizeF.Empty), parent).Location
+        End Function
 
 
 		Private Function CalculateWidth(ByVal control As XRControl) As Single
@@ -162,11 +161,11 @@ Namespace T457241
 			Me.droppedControl = detailLabel
 			detailLabel.SizeF = size
 
-			host.Container.Add(detailLabel)
-			Dim dropPoint As PointF = GetDragDropLocation(e, detailLabel, parentControl)
-			detailLabel.DataBindings.Add("Text", droppedData(0).Source, droppedData(0).Member)
+            Host.Container.Add(detailLabel)
+            Dim dropPoint As PointF = GetDragDropLocation(e, detailLabel, parentControl)
+            detailLabel.ExpressionBindings.Add(New ExpressionBinding("Text", droppedData(0).Member))
 
-			selectSvc.SetSelectedComponents(New XRControl() { detailLabel })
+            selectSvc.SetSelectedComponents(New XRControl() { detailLabel })
 
 			Me.DropXRControl(parentControl, dropPoint)
 
@@ -177,11 +176,11 @@ Namespace T457241
 				Else
 					band = New PageHeaderBand()
 					panel.Report.Bands.Add(band)
-					host.Container.Add(band)
-				End If
+                    Host.Container.Add(band)
+                End If
 				Dim headerLabel As XRLabel = CreateLabel(droppedControl.LocationF, size, droppedData(0).DisplayName)
-				host.Container.Add(headerLabel)
-				band.Controls.Add(headerLabel)
+                Host.Container.Add(headerLabel)
+                band.Controls.Add(headerLabel)
 			End If
 		End Sub
 

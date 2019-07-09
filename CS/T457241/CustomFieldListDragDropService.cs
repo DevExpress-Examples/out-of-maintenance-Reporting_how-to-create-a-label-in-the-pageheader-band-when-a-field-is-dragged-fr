@@ -1,18 +1,16 @@
 ﻿using DevExpress.Data.Browsing;
 using DevExpress.XtraPrinting;
 using DevExpress.XtraReports.Design;
+using DevExpress.XtraReports.Expressions.Native;
 using DevExpress.XtraReports.UI;
 using DevExpress.XtraReports.UserDesigner;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace T457241 {
-
     public class CustomFieldListDragDropService : IFieldListDragDropService {
         private IDesignerHost host;
         private XRDesignPanel panel;
@@ -21,12 +19,10 @@ namespace T457241 {
             this.host = host;
             this.panel = panel;
         }
-
         public IDragHandler GetDragHandler() {
             return new CustomFieldDragHandler(host, panel);
         }
     }
-
     public class CustomFieldDragHandler : FieldDragHandler {
         XRDesignPanel panel;
         XRControl droppedControl;
@@ -76,7 +72,9 @@ namespace T457241 {
 
             for(int i = 0; i < droppedData.Length; i++) {
                 XRTableCell cell = new XRTableCell();
-                cell.DataBindings.Add("Text", droppedData[i].Source, droppedData[i].Member);
+                string relatedDataMember = ExpressionBindingHelper.NormalizeDataMember(droppedData[i].Member, parentControl.Report.DataMember);
+                cell.ExpressionBindings.Add(new ExpressionBinding("Text",
+                    relatedDataMember));
                 detailRow.Cells.Add(cell);
                 host.Container.Add(cell);
             }
@@ -138,7 +136,6 @@ namespace T457241 {
             return bandViewSvc.ScreenToControl(new RectangleF(screenPoint, SizeF.Empty), parent).Location;
         }
 
-
         private float CalculateWidth(XRControl control) {
             XtraReport report = control.RootReport;
             return GraphicsUnitConverter.Convert(report.PageWidth - report.Margins.Left - report.Margins.Right, report.Dpi, GraphicsDpi.HundredthsOfAnInch);
@@ -156,7 +153,7 @@ namespace T457241 {
 
             host.Container.Add(detailLabel);
             PointF dropPoint = GetDragDropLocation(e, detailLabel, parentControl);
-            detailLabel.DataBindings.Add("Text", droppedData[0].Source, droppedData[0].Member);
+            detailLabel.ExpressionBindings.Add(new ExpressionBinding("Text", ExpressionBindingHelper.NormalizeDataMember(droppedData[0].Member, parentControl.Report.DataMember)));
 
             selectSvc.SetSelectedComponents(new XRControl[] { detailLabel });
 

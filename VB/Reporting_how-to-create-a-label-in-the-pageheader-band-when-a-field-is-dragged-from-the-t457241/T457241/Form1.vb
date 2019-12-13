@@ -1,4 +1,4 @@
-﻿Imports DevExpress.XtraReports.Design
+Imports DevExpress.XtraReports.Design
 Imports DevExpress.XtraReports.UI
 Imports DevExpress.XtraReports.UserDesigner
 Imports System
@@ -46,7 +46,7 @@ Namespace T457241
 			End If
 			If TypeOf e.Component Is XRLabel Then
 				Dim label As XRLabel = TryCast(e.Component, XRLabel)
-				If label.DataBindings.Count = 0 Then
+				If label.ExpressionBindings.Count = 0 Then
 					Return
 				End If
 				If TypeOf label.Parent Is XRTableRow Then
@@ -55,14 +55,14 @@ Namespace T457241
 				headerBand = CreatePageHeaderBand(designer.Report)
 				Dim newLabel As XRLabel = CopyLabel(label, headerBand)
 				headerBand.Controls.Add(newLabel)
-				DesignTool.AddToContainer(host, newLabel)
+				DesignToolHelper.AddToContainer(host, newLabel)
 			End If
 			If TypeOf e.Component Is XRTable Then
 				headerBand = CreatePageHeaderBand(designer.Report)
 				Dim sourceRow As XRTableRow = (TryCast(e.Component, XRTable)).Rows(0)
 				Dim headerTable As XRTable = CreateTable(sourceRow, headerBand.HeightF)
 				headerBand.Controls.Add(headerTable)
-				DesignTool.AddToContainer(host, headerTable)
+				DesignToolHelper.AddToContainer(host, headerTable)
 			End If
 		End Sub
 
@@ -71,14 +71,14 @@ Namespace T457241
 			' Remove the comments if you need to recreate the PageHeader band
 			'if(headerBand != null) {
 			'    for(int i = headerBand.Controls.Count - 1; i >= 0; i--)
-			'        DevExpress.XtraReports.Design.DesignTool.RemoveFromContainer(host, headerBand.Controls[i]);
+			'        DesignToolHelper.RemoveFromContainer(host, headerBand.Controls[i]);
 			'    headerBand.Controls.Clear();
-			'    DevExpress.XtraReports.Design.DesignTool.RemoveFromContainer(host, headerBand);
+			'    DesignToolHelper.RemoveFromContainer(host, headerBand);
 			If headerBand Is Nothing Then
 				headerBand = New PageHeaderBand()
 				headerBand.HeightF = 0
 				headerBand.Visible = True
-				DesignTool.AddToContainer(host, headerBand)
+				DesignToolHelper.AddToContainer(host, headerBand)
 			End If
 			Return headerBand
 		End Function
@@ -101,24 +101,23 @@ Namespace T457241
 		Private Function CopyLabel(ByVal label As XRLabel, ByVal band As PageHeaderBand) As XRLabel
             Dim labelText As String = "XRLabel"
             Dim report As XtraReport = TryCast(band.Report, XtraReport)
-            Dim newLabel As New XRLabel()
-            newLabel.WidthF = label.WidthF
+			Dim newLabel As New XRLabel()
+			newLabel.LocationF = label.LocationF
+			newLabel.WidthF = label.WidthF
             newLabel.HeightF = label.HeightF
             newLabel.BackColor = Color.Green
             newLabel.ForeColor = Color.Yellow
             newLabel.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleCenter
             newLabel.Font = New Font("Calibry", 11, FontStyle.Bold)
-            newLabel.Borders = DevExpress.XtraPrinting.BorderSide.All
-            newLabel.LocationF = New PointF(0, band.HeightF)
-            newLabel.WidthF = report.PageWidth - report.Margins.Left - report.Margins.Right
-            If label.DataBindings.Count > 0 Then
-                labelText = label.DataBindings(0).DataMember
-                Dim index As Integer = labelText.LastIndexOf(".")
-                If index > 0 Then
-                    labelText = labelText.Substring(index + 1)
-                End If
-            End If
-            newLabel.Text = labelText
+			newLabel.Borders = DevExpress.XtraPrinting.BorderSide.All
+			If label.ExpressionBindings.Count > 0 Then
+				labelText = label.ExpressionBindings(0).Expression
+				Dim index As Integer = labelText.LastIndexOf(".")
+				If index > 0 Then
+					labelText = labelText.Substring(index + 1)
+				End If
+			End If
+			newLabel.Text = labelText
 			Return newLabel
 		End Function
 
@@ -130,14 +129,14 @@ Namespace T457241
 			cell.ForeColor = Color.Yellow
 			cell.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleCenter
 			cell.Font = New Font("Calibry", 11, FontStyle.Bold)
-            Dim cellText As String = source.DataBindings(0).DataMember
-            Dim index As Integer = cellText.LastIndexOf(".")
+			Dim cellText As String = source.ExpressionBindings(0).Expression
+			Dim index As Integer = cellText.LastIndexOf(".")
             If index > 0 Then
                 cellText = cellText.Substring(index + 1)
             End If
             cell.Text = cellText
 			row.Cells.Add(cell)
-			DesignTool.AddToContainer(host, cell)
+			DesignToolHelper.AddToContainer(host, cell)
 		End Sub
 	End Class
 End Namespace

@@ -1,4 +1,4 @@
-﻿Imports DevExpress.Data.Browsing
+Imports DevExpress.Data.Browsing
 Imports DevExpress.XtraPrinting
 Imports DevExpress.XtraReports.Design
 Imports DevExpress.XtraReports.Expressions.Native
@@ -42,6 +42,8 @@ Namespace T457241
         End Sub
 
         Public Overrides Sub HandleDragDrop(ByVal sender As Object, ByVal e As DragEventArgs)
+            ResetUI(e)
+
             Dim droppedData() As DataInfo = TryCast(e.Data.GetData(GetType(DataInfo())), DataInfo())
             Dim parentControl As XRControl = BandViewSvc.GetControlByScreenPoint(New System.Drawing.Point(e.X, e.Y))
 
@@ -57,8 +59,6 @@ Namespace T457241
         End Sub
 
         Private Sub AddMultipleFields(ByVal e As DragEventArgs, ByVal droppedData() As DataInfo, ByVal parentControl As XRControl, ByVal selectSvc As ISelectionService)
-            Me.AdornerService.ResetAll()
-            Me.RulerService.HideShadows()
             Dim headerCell As XRTableCell
             Dim parent As XRControl = BandViewSvc.GetControlByScreenPoint(New System.Drawing.Point(e.X, e.Y))
             If parent Is Nothing Then
@@ -151,9 +151,6 @@ Namespace T457241
         End Function
 
         Private Sub AddSingleField(ByVal e As DragEventArgs, ByVal droppedData() As DataInfo, ByVal parentControl As XRControl, ByVal selectSvc As ISelectionService)
-            Me.AdornerService.ResetAll()
-            Me.RulerService.HideShadows()
-
             Dim size As New SizeF(100.0F, 25.0F)
 
             Dim detailLabel As New XRLabel()
@@ -194,7 +191,6 @@ Namespace T457241
         End Function
 
         Private Sub DropXRControl(ByVal parent As XRControl, ByVal dropPoint As PointF)
-            Dim screenPoint As PointF = dropPoint
             parent.Controls.Add(droppedControl)
             droppedControl.LocationF = dropPoint
         End Sub

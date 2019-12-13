@@ -1,10 +1,10 @@
 <!-- default file list -->
 *Files to look at*:
 
-* [CustomFieldListDragDropService.cs](./CS/T457241/CustomFieldListDragDropService.cs) (VB: [CustomFieldListDragDropService.vb](./VB/T457241/CustomFieldListDragDropService.vb))
-* [Form1.cs](./CS/T457241/Form1.cs) (VB: [Form1.vb](./VB/T457241/Form1.vb))
-* [Program.cs](./CS/T457241/Program.cs) (VB: [Program.vb](./VB/T457241/Program.vb))
-* [XtraReport1.cs](./CS/T457241/XtraReport1.cs) (VB: [XtraReport1.vb](./VB/T457241/XtraReport1.vb))
+* [CustomFieldListDragDropService.cs](./CS/Reporting_how-to-create-a-label-in-the-pageheader-band-when-a-field-is-dragged-from-the-t457241/T457241/CustomFieldListDragDropService.cs) (VB: [CustomFieldListDragDropService.vb](./VB/Reporting_how-to-create-a-label-in-the-pageheader-band-when-a-field-is-dragged-from-the-t457241/T457241/CustomFieldListDragDropService.vb))
+* [Form1.cs](./CS/Reporting_how-to-create-a-label-in-the-pageheader-band-when-a-field-is-dragged-from-the-t457241/T457241/Form1.cs) (VB: [Form1.vb](./VB/Reporting_how-to-create-a-label-in-the-pageheader-band-when-a-field-is-dragged-from-the-t457241/T457241/Form1.vb))
+* [Program.cs](./CS/Reporting_how-to-create-a-label-in-the-pageheader-band-when-a-field-is-dragged-from-the-t457241/T457241/Program.cs) (VB: [Program.vb](./VB/Reporting_how-to-create-a-label-in-the-pageheader-band-when-a-field-is-dragged-from-the-t457241/T457241/Program.vb))
+* [XtraReport1.cs](./CS/Reporting_how-to-create-a-label-in-the-pageheader-band-when-a-field-is-dragged-from-the-t457241/T457241/XtraReport1.cs) (VB: [XtraReport1.vb](./VB/Reporting_how-to-create-a-label-in-the-pageheader-band-when-a-field-is-dragged-from-the-t457241/T457241/XtraReport1.vb))
 <!-- default file list end -->
 # How to create a label in the PageHeader band when a field is dragged from the Field List
 

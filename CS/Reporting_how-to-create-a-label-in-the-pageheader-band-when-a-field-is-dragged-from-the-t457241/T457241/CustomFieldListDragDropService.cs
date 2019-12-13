@@ -1,4 +1,4 @@
-﻿using DevExpress.Data.Browsing;
+using DevExpress.Data.Browsing;
 using DevExpress.XtraPrinting;
 using DevExpress.XtraReports.Design;
 using DevExpress.XtraReports.Expressions.Native;
@@ -34,6 +34,8 @@ namespace T457241 {
         }
 
         public override void HandleDragDrop(object sender, DragEventArgs e) {
+            ResetUI(e);
+
             DataInfo[] droppedData = e.Data.GetData(typeof(DataInfo[])) as DataInfo[];
             XRControl parentControl = BandViewSvc.GetControlByScreenPoint(new Point(e.X, e.Y));
 
@@ -48,8 +50,6 @@ namespace T457241 {
         }
 
         private void AddMultipleFields(DragEventArgs e, DataInfo[] droppedData, XRControl parentControl, ISelectionService selectSvc) {
-            this.AdornerService.ResetAll();
-            this.RulerService.HideShadows();
             XRTableCell headerCell;
             XRControl parent = BandViewSvc.GetControlByScreenPoint(new Point(e.X, e.Y));
             if(parent == null)
@@ -140,9 +140,6 @@ namespace T457241 {
         }
 
         private void AddSingleField(DragEventArgs e, DataInfo[] droppedData, XRControl parentControl, ISelectionService selectSvc) {
-            this.AdornerService.ResetAll();
-            this.RulerService.HideShadows();
-
             SizeF size = new SizeF(100F, 25F);
 
             XRLabel detailLabel = new XRLabel();
@@ -185,7 +182,6 @@ namespace T457241 {
         }
 
         void DropXRControl(XRControl parent, PointF dropPoint) {
-            PointF screenPoint = dropPoint;
             parent.Controls.Add(droppedControl);
             droppedControl.LocationF = dropPoint;
         }
